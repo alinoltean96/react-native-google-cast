@@ -2,6 +2,7 @@ package com.googlecast;
 
 import android.support.annotation.Nullable;
 import android.support.v7.media.MediaRouter;
+import android.support.v7.media.MediaRouteSelector;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -38,6 +39,9 @@ import java.util.Map;
 public class GoogleCastModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     private VideoCastManager mCastManager;
     private VideoCastConsumer mCastConsumer;
+    private MediaRouteSelector mMediaRouteSelector;
+    private GoogleCastMediaRouterCallback mMediaRouterCallback;
+    private MediaRouter mMediaRouter;
     Map<String, MediaRouter.RouteInfo> currentDevices = new HashMap<>();
     private WritableMap deviceAvailableParams;
 
@@ -196,7 +200,7 @@ public class GoogleCastModule extends ReactContextBaseJavaModule implements Life
 
 
     @ReactMethod
-    public void startScan(@Nullable String appId) {
+    public void startScan(@Nullable final String appId) {
         Log.e(REACT_CLASS, "start scan Chromecast ");
         if (mCastManager != null) {
             mCastManager = VideoCastManager.getInstance();
@@ -214,6 +218,14 @@ public class GoogleCastModule extends ReactContextBaseJavaModule implements Life
                 public void run() {
                     VideoCastManager.initialize(getCurrentActivity(), options);
                     mCastManager = VideoCastManager.getInstance();
+                    mMediaRouter = MediaRouter.getInstance(getReactApplicationContext());
+                    mMediaRouteSelector = new MediaRouteSelector.Builder().addControlCategory(
+                            CastMediaControlIntent.categoryForCast((appId != null ? appId : CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID ))).build();
+
+                    mMediaRouterCallback = new GoogleCastMediaRouterCallback(mCastManager);
+                    mMediaRouter.addCallback(mMediaRouteSelector, mMediaRouterCallback,
+                            MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
+
                     mCastConsumer = new VideoCastConsumerImpl() {
 
                         @Override
