@@ -81,10 +81,12 @@ public class GoogleCastModule extends ReactContextBaseJavaModule implements Life
     }
 
     private void addDevice(MediaRouter.RouteInfo info) {
+        Log.e(REACT_CLASS, "addDevice id:" + info.getId() + " name:" + info.getName());
         currentDevices.put(info.getId(), info);
     }
 
     private void removeDevice(MediaRouter.RouteInfo info) {
+        Log.e(REACT_CLASS, "removeDevice id:" + info.getId() + " name:" + info.getName());
         currentDevices.remove(info.getId());
     }
 
