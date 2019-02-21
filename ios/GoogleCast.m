@@ -13,7 +13,41 @@ static NSString *const MEDIA_LOADED = @"GoogleCast:MediaLoaded";
 @implementation GoogleCast
 @synthesize bridge = _bridge;
 
-RCT_EXPORT_MODULE();
+- (instancetype) init {
+    self = [super init];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                            name:RCTBridgeWillReloadNotification
+                                            object: nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                            selector:@selector(onBridgeWillReload)
+                                            name:RCTBridgeWillReloadNotification
+                                            object:nil];
+    
+    return self;
+}
+
++ (BOOL)requiresMainQueueSetup
+{
+    return YES;
+}
+
+- (void) onBridgeWillReload {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if(_deviceScanner != nil && [_deviceScanner scanning]) {
+            [_deviceScanner stopScan];
+        }
+        
+        if(_deviceScanner != nil) {
+            [_deviceScanner removeListener:self];
+        }
+        
+        _deviceScanner = nil;
+        //NSLog(@"HELLO: DeviceScanner is DOWN: %@", _deviceScanner);
+    });
+}
+
+RCT_EXPORT_MODULE(GoogleCast);
 
 - (NSDictionary *)constantsToExport
 {
