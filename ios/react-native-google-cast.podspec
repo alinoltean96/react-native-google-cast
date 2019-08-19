@@ -13,8 +13,8 @@ Pod::Spec.new do |s|
   s.platform     = :ios, "9.0"
 
   s.source       = { :git => "https://github.com/exozet/react-native-google-cast.git", :branch => "bugfix/listen-to-on-route-added-even-if-companion-library-doesnt-do" }
-  s.source_files  = "ios/**/*.{h,m}"
-
+  s.source_files  = "*.{h,m}"
+  
   s.dependency 'React'
   s.dependency 'google-cast-sdk', '2.10.4.1'
 end
